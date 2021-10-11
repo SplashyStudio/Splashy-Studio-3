@@ -1,0 +1,602 @@
+<!-- editor file -->
+
+<!-- editing modes list -->
+<h3>EDITING MODES</h3> <!-- header -->
+<button title="Make a custom image" id="mode1" onclick="showCustomImageMode()">Make Custom Image</button><br><br> <!-- mode 1 -->
+<button title="Edit another image file" id="mode2" onclick="showEditImageMode()">Edit Another Image</button><br><br> <!-- mode 2 -->
+<!-- 1 | custom image mode -->
+<div id="customImageMode">
+    <!-- favorite color picker -->
+    <div id="favoritesContainer">
+        <label for="favoriteColor">Favorite Color</label> <!-- label -->
+        <input type="color" name="favcolor" id="favcolor" value="#ff0000" onchange="favoriteColor(this)" style="cursor:pointer"> <!-- select -->
+    </div><br>
+    <!-- pen size picker -->
+    <div id="penSize" class="penSize">
+        <label for="penSize">Pen Size</label> <!-- label -->
+        <input type="range" name="penSize" value="10" step="1" min="1" max="100" onchange="penSizeChange(this.value)" style="cursor:pointer" id="penSlider"> <!-- slider -->
+    </div><br>
+    <!-- actions -->
+    <a title="Save your picture" id="saveAndDownload" onclick="foto.export()">&nbsp;Save And Download&nbsp;</a> <!-- export -->
+    <a onclick="tellClearCanvasWarning()" title="Clear your picture" id="clearCanvas">&nbsp;Clear Canvas&nbsp;</a><br><br> <!-- reset -->
+    <!-- canvas -->
+    <div class="board">
+        <canvas id="paintingCanvas" width="500px" height="500px" style="background:white;cursor:none"></canvas>
+    </div><br>
+    <!-- zoom buttons -->
+    <a title="Zoom canvas in" id="zoomIn" onclick="zoomCanvasIn()">&nbsp;+&nbsp;</a> <!-- in -->
+    <a title="Zoom canvas normally" id="zoomNormally" onclick="zoomCanvasNormally()">&nbsp;=&nbsp;</a> <!-- normally -->
+    <a title="Zoom canvas out" id="zoomOut" onclick="zoomCanvasOut()">&nbsp;-&nbsp;</a> <!-- out -->
+</div>
+<!-- 2 | editing image mode -->
+<div id="editingImageMode" style="display:none">
+    <!-- actions -->
+    <a title="Save your picture" id="editSaveAndDownload" onclick="foto.export()">&nbsp;Save And Download&nbsp;</a> <!-- export -->
+    <a onclick="tellClearCanvasWarning()" title="Clear your picture" id="editClearCanvas">&nbsp;Clear Canvas&nbsp;</a><br><br> <!-- reset -->
+    <!-- import pictures -->
+    <div class="file-upload-section" onclick="selectImage()">
+        <input id="foto-file" type="file" style="font-family:Helvetica"><p id="selectText" title="Select an image file">Select Image File</p>
+    </div><br>
+    <!-- canvas -->
+    <div class="img-container">
+        <img id="foto-image" class="image" style="background:white;border-color:black">
+    </div><br>
+    <!-- zoom buttons -->
+    <a id="editZoomIn" title="Zoom canvas in" onclick="zoomEditCanvasIn()">&nbsp;+&nbsp;</a> <!-- in -->
+    <a id="editZoomNormally" title="Zoom canvas normally" onclick="zoomEditCanvasNormally()">&nbsp;=&nbsp;</a> <!-- normally -->
+    <a id="editZoomOut" title="Zoom canvas out" onclick="zoomEditCanvasOut()">&nbsp;-&nbsp;</a><br><br> <!-- out -->
+    <!-- filters -->
+    <div class="buttons-section">
+        <table class="buttons-table">
+            <tr>
+                <td><button title="GrayScale" onclick="foto.grayscale()" class="operation-btn">GrayScale</button></td>
+                <td><button title="Brighter" onclick="foto.makeBright()" class="operation-btn">Brighter</button></td>
+                <td><button title="Darker" onclick="foto.makeDark()" class="operation-btn">Darker</button></td>
+            </tr>
+            <tr>
+                <td><button title="Blur" onclick="foto.applyBlurFilter()" class="operation-btn">Blur</button></td>
+                <td><button title="Emboss" onclick="foto.applyEmbossFilter()" class="operation-btn">Emboss</button></td>
+                <td><button title="Sharp" onclick="foto.applySharpFilter()" class="operation-btn">Sharp</button></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<!-- custom cursor -->
+<div class="cursor"></div>
+<!-- LOOKS -->
+<style>
+
+/*
+    All divs styled are in ABC order
+*/
+
+/*  Bb  */
+
+body {
+    background: linear-gradient(#19b2ff, blue);
+    color: #80eaff;
+    font-family: "Helvetica";
+    text-align: center;
+    user-select: none;
+}
+
+.buttons-section {
+    color: white;
+    margin: auto;
+    left: 25%;
+    top: 66%;
+    width: 50%;
+}
+
+.buttons-table {width:100%;}
+
+.buttons-table td {padding:3px;text-align:center;}
+
+/*  Cc  */
+
+#clearCanvas {
+    background: #198cff;
+    border-radius: 25%;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#clearCanvas:hover {background:#0073e6;color:lightgray;}
+
+#clearTextArea {
+    background: #198cff;
+    border-radius: 25%;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#clearTextArea:hover {background:#0073e6;color:lightgray;}
+
+.cursor {
+    animation: cursorAnimation1 .5s infinite alternate;
+    border: 3px solid aqua;
+    height: 25px;
+    pointer-events: none;
+    position: absolute;
+    transition-duration: 300ms;
+    transition-timing-function: ease-in-out;
+    width: 25px;
+}
+
+.cursor::after {
+    animation: cursorAnimation2 .5s infinite alternate;
+    border: 7px solid cornflowerblue;
+    height: 25px;
+    opacity: .5;
+    position: absolute;
+    width: 25px;
+}
+
+/*  Dd  */
+
+.download-btn {background:#198cff;}
+
+/*  Ee  */
+
+#editClearCanvas {
+    background: #198cff;
+    border-radius: 25%;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#editClearCanvas:hover {background:#0066cc;color:lightgray;}
+
+#editSaveAndDownload {
+    background: #198cff;
+    border-radius: 25%;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#editSaveAndDownload:hover{background:#0066cc;color:lightgray;}
+
+#editZoomIn {
+    text-decoration: none;
+    cursor: pointer;
+    background: #0080ff;
+    border-radius: 50px;
+    font-weight: bold;
+}
+
+#editZoomIn:hover {background:#0066cc;color:lightgray;}
+
+#editZoomNormally {
+    text-decoration: none;
+    cursor: pointer;
+    background: #0080ff;
+    border-radius: 50px;
+    font-weight: bold;
+}
+
+#editZoomNormally:hover {background:#0066cc;color:lightgray;}
+
+#editZoomOut {
+    text-decoration: none;
+    cursor: pointer;
+    background: #0080ff;
+    border-radius: 50px;
+    font-weight: bold;
+}
+
+#editZoomOut:hover {background:#0066cc;color:lightgray;}
+
+.expand {
+    border: 3px solid blue;
+    animation: cursorAnimation3 .5s forwards;
+}
+
+/*  Ff  */
+
+#favoritesContainer:hover {cursor:pointer;color:lightgray;}
+
+#foto-file {display:none;}
+
+.file-upload-section {
+    color: white;
+    font-family: "Helvetica";
+    margin: auto;
+    margin-top: 5%;
+    padding: 5px;
+    text-align: center;
+    width: 50%;
+}
+
+/*  Ii  */
+
+.image {
+    font-family: "Helvetica";
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.img-container {
+    font-family: "Helvetica";
+    height: 50%;
+    margin: auto;
+    text-align: center;
+    width: 50%;
+}
+
+/*  Kk  */
+
+@keyframes cursorAnimation1 {
+    from {transform:scale(1);}
+    to {transform:scale(.8);}
+}
+
+@keyframes cursorAnimation2 {
+    from {transform:scale(1);}
+    to {transform:scale(.5);}
+}
+
+@keyframes cursorAnimation3 {
+    0% {transform:scale(1);}
+    50% {transform:scale(3);}
+    100% {transform:scale(1);opacity:0;}
+}
+
+/*  Mm  */
+
+#mode1 {
+    background: #0080ff;
+    border: 2px solid black;
+    border-radius: 10px;
+    color: #00cccc;
+    cursor: pointer;
+    font-family: "Arial";
+    font-weight: bold;
+}
+
+#mode2 {
+    background: #19b2ff;
+    border: 2px solid black;
+    border-radius: 10px;
+    color: aqua;
+    cursor: pointer;
+    font-family: "Arial";
+    font-weight: bold;
+}
+
+/*  Oo  */
+
+.operation-btn {
+    background: cornflowerblue;
+    border: 0;
+    box-shadow: 0 0.3rem 0.3rem rgba(0,0,0,0.3), 0 0 3rem rgba(0,0,0,0.3);
+    color: white;
+    cursor: pointer;
+    font-family: "Helvetica";
+    padding: 7px;
+    width: 100%;
+}
+
+.operation-btn:hover {background:#198cff;color:lightgray;}
+
+/*  Pp  */
+
+#penSize:hover {cursor:pointer;color:lightgray;}
+
+#penSizePercent {
+    background: none;
+    border: none;
+    color: aqua;
+    font-weight: bold;
+    user-select: none;
+}
+
+/*  Ss  */
+
+#saveAndDownload {
+    background: #198cff;
+    border-radius: 25%;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#saveAndDownload:hover {background:#0073e6;color:lightgray;}
+
+#selectText {background:#198cff;cursor:pointer;}
+
+#selectText:hover {background:#0080ff;color:lightgray;}
+
+/*  Ww  */
+
+#writingTextArea {
+    height: 450px;
+    width: 1000px;
+    font-family: "Century Gothic";
+    font-size: 25px;
+}
+
+/*  Zz  */
+
+#zoomIn {
+    text-decoration: none;
+    cursor: pointer;
+    background: #0080ff;
+    border-radius: 50px;
+    font-weight: bold;
+}
+
+#zoomIn:hover {background:#0066cc;color:lightgray;}
+
+#zoomNormally {
+    text-decoration: none;
+    cursor: pointer;
+    background: #0080ff;
+    border-radius: 50px;
+    font-weight: bold;
+}
+
+#zoomNormally:hover {background:#0066cc;color:lightgray;}
+
+#zoomOut {
+    text-decoration: none;
+    cursor: pointer;
+    background: #0080ff;
+    border-radius: 50px;
+    font-weight: bold;
+}
+
+#zoomOut:hover {background:#0066cc;color:lightgray;}
+
+</style>
+<!-- ACTS -->
+<script src="https://rawcdn.githack.com/kousik19/foto.js/d604b02c69b6f037875bc4a3050b85d776dc4659/foto.js"></script>
+<script>
+
+//                     Splashy Studio uses "foto.js" for its editing mode and its exporting.
+
+const colorCircle = document.querySelectorAll(".color-circle");
+
+let penSize=10; // <=== Equal to the value of the pen size picker
+let isDrawing; // <=== Boolean (true / false)
+let x; // <=== Tracks your drawing X axis
+let y; // <=== Tracks your drawing Y axis
+
+var canvas = document.querySelector("canvas"); // <=== Selects the canvas to let you draw on it
+c = canvas.getContext("2d");
+
+document.getElementById("penSlider").title = "Pen size is " + document.getElementById("penSlider").value; // <= Sets the pen slider tooltip to the value immediately after you run it
+
+// Drawing follows your mouse with this
+canvas.addEventListener('mousemove', (event) => {
+    draw(event.offsetX, event.offsetY);
+});
+
+// Start drawing
+canvas.addEventListener("mouseup", () => {
+    isDrawing = false; // <= Since you're not drawing
+    x = undefined; // <= X will be undefined since you're not drawing
+    y = undefined; // <= Y will be undefined since you're not drawing
+});
+
+// Stop drawing
+canvas.addEventListener("mousedown", (e) => {
+    isDrawing = true; // <= Since you're drawing
+    x = e.offsetX; // <= X will be defined since you're drawing
+    y = e.offsetY; // <= Y will be defined since you're drawing
+});
+
+c.fillStyle = "#ff0000"; // <=== Sets the fill style to the red color it is by default | just like the favorite color picker
+c.strokeStyle = c.fillStyle;
+
+document.getElementById("favcolor").title = "Color is " + document.getElementById("favcolor").value; // <= After you immediately run it, it should say the color
+
+function draw(x2, y2) {
+    if(isDrawing) {
+        c.beginPath();
+        c.arc(x2, y2, penSize, 0, Math.PI * 2);
+        c.closePath();
+        c.fill();
+    }
+    drawLine(x, y, x2, y2);
+}
+
+function drawLine(x, y, x2, y2) {
+    c.beginPath();
+    c.moveTo(x1, y1);
+    c.lineTo(x2, y2);
+    c.strokeStyle = c.fillStyle;
+    c.lineWidth = penSize * 3;
+    c.stroke();
+}
+
+const removeActiveCircleColor = () => {
+    colorCircle.forEach((circle) => {
+        circle.classList.remove("active");
+    });
+    document.getElementById("favcolor").title = "Color is " + document.getElementById("favcolor").value; // <= More GUI actions
+};
+
+const selectColor = (elem) => {
+    removeActiveCircleColor();
+    c.fillStyle = elem.getAttribtue("data-color");
+    elem.classList.add("active");
+    document.getElementById("favcolor").title = "Color is " + document.getElementById("favcolor").value; // <= Even more GUI actions
+};
+
+const favoriteColor = (elem) => {
+    removeActiveCircleColor();
+    c.fillStyle = elem.value;
+    document.getElementById("favcolor").title = "Color is " + document.getElementById("favcolor").value; // <= EVEN MORE GUI ACTIONS
+};
+
+function penSizeChange(pensize) {
+    penSize = pensize;
+    document.getElementById("penSlider").title = "Pen size is " + document.getElementById("penSlider").value; // <= Pen slider tooltip will now act like a GUI for sure
+}
+
+document.querySelector("a").addEventListener('click', (event) => event.target.href = canvas.toDataURL());
+
+// "IF" you click 'Clear Canvas'
+function tellClearCanvasWarning() {
+    alert("Your canvas will be erased FOR GOOD! :(");
+    window.location = 'startup.html' + window.location.hash;
+}
+
+// Zoom the canvas in (custom image mode)
+//      | | |
+//      V V V
+
+function zoomCanvasIn() {
+    document.getElementById("paintingCanvas").style.width = "1000px";
+    document.getElementById("paintingCanvas").style.height = "1000px";
+}
+
+// Zoom the canvas normally (custom image mode)
+//          | | |
+//          V V V
+
+function zoomCanvasNormally() {
+    document.getElementById("paintingCanvas").style.width = "500px";
+    document.getElementById("paintingCanvas").style.height = "500px";
+}
+
+// Zoom the canvas out (custom image mode)
+//       | | |
+//       V V V
+
+function zoomCanvasOut() {
+    document.getElementById("paintingCanvas").style.width = "250px";
+    document.getElementById("paintingCanvas").style.height = "250px";
+}
+
+// List of key shortcuts
+//        | | |
+//        V V V
+
+document.onkeyup = function(e) {
+    if(e.ctrlKey && e.which == 73) {zoomCanvasIn();} // <- Ctrl+I: Zoom In
+    if(e.ctrlKey && e.which == 78) {zoomCanvasNormally();} // <- Ctrl+N: Zoom Normally
+    if(e.ctrlKey && e.which == 79) {zoomCanvasOut();} // <- Ctrl+O: Zoom Out
+    if(e.ctrlKey && e.which == 82) {tellClearCanvasWarning();} // <- Ctrl+R: Clear Canvas
+    if(e.which == 17 && e.which == 49) {showCustomImageMode();} // <- Ctrl+1: Make Custom Image
+    if(e.which == 17 && e.which == 50) {showEditImageMode();} // <- Ctrl+2: Edit Another Image
+    if(e.ctrlKey && e.which == 70) {
+        document.getElementById("favcolor").click(); // <- Ctrl+F: Favorite Color
+    }
+    if(e.ctrlKey && e.which == 68) {foto.export();}  // <- Ctrl+D: Save And Download
+    if(e.which == 18 && e.which == 67) {clearTextArea();} // <- Alt+C: Clear Writing Text Area
+    if(e.which == 18 && e.which == 73) {
+        document.getElementById("foto-file").click(); // <- Alt+I: Select Image File
+    }
+}
+
+// Start the custom cursor functioning here
+//           | | | | | | |
+//           V V V V V V V
+
+const cursor = document.querySelector('.cursor'); // <- Adds the cursor itself              
+
+// Events for when / "IF" you click
+document.addEventListener('click', () => {
+    cursor.classList.add("expand"); // <--- Adds the clicking expand animation
+
+    // Make the click sound
+
+    var click = new Audio();
+    click.src = "click.mp3";
+    click.play();           
+
+    setTimeout(() => {
+        cursor.classList.remove("expand"); // <= Adds the time to stop expanding after clicking
+    }, 500); // <= for 0.5 seconds
+});
+
+// Follow the cursor
+document.addEventListener('mousemove', e => {
+    cursor.setAttribute("style", "top: "+(e.pageY-10)+"px; left: "+(e.pageX-10)+"px;");
+});
+
+//         ^ ^ ^ ^ ^ ^ ^
+//         | | | | | | |
+// End the custom cursor functioning here
+
+// Toggle Mode 1: MAKE CUSTOM IMAGE
+// | | |
+// V V V
+
+function showCustomImageMode() {
+
+    // Toggle on
+    document.getElementById("customImageMode").style.display = "block";
+
+    // Toggle off
+    document.getElementById("editingImageMode").style.display = "none";
+
+    // Hovered
+    document.getElementById("mode1").style.color = "#00cccc";
+    document.getElementById("mode1").style.background = "#0080ff";
+
+    // Unhovered
+    document.getElementById("mode2").style.color = "aqua";
+    document.getElementById("mode2").style.background = "#19b2ff";
+
+}
+
+// Toggle Mode 2: EDIT ANOTHER IMAGE
+// | | |
+// V V V
+
+function showEditImageMode() {
+
+    // Toggle off
+    document.getElementById("customImageMode").style.display = "none";
+
+    // Toggle on
+    document.getElementById("editingImageMode").style.display = "block";
+
+    // Unhovered
+    document.getElementById("mode1").style.color = "aqua";
+    document.getElementById("mode1").style.background = "#19b2ff";
+
+    // Hovered
+    document.getElementById("mode2").style.color = "#00cccc";
+    document.getElementById("mode2").style.background = "#0080ff";
+
+}
+
+// Defining "foto"
+var foto;
+window.onload = function() {foto = new Foto();}
+
+// Zoom the canvas in (edit image mode)
+//          | | |
+//          V V V
+
+function zoomEditCanvasIn() {
+    document.getElementById("foto-image").style.width = "1000px";
+    document.getElementById("foto-image").style.height = "1000px";
+}
+
+// Zoom the canvas normally (edit image mode)
+//              | | |
+//              V V V
+
+function zoomEditCanvasNormally() {
+    document.getElementById("foto-image").style.width = "500px";
+    document.getElementById("foto-image").style.height = "500px";
+}
+
+// Zoom the canvas out (edit image mode)
+//             | | |
+//             V V V
+
+function zoomEditCanvasOut() {
+    document.getElementById("foto-image").style.width = "250px";
+    document.getElementById("foto-image").style.height = "250px";
+} 
+</script>

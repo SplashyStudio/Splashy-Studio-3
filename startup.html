@@ -1,0 +1,46 @@
+<!-- startup file -->
+
+<title>Splashy Studio 3</title>
+<img width="555" height="555" src="ss3.png"><br><br>
+<b id="creatorCredits">By MWB</b><br><br>
+<span id="loadingText">LOADING APPLICATION...</span>
+<style>
+
+/*
+    All divs are styled in ABC order
+*/
+
+/*  Bb  */
+
+body {
+    text-align: center;
+    font-family: "Arial";
+    user-select: none;
+}
+
+/* Cc  */
+#creatorCredits {
+    color: #0073e6;
+    font-family: "Helvetica";
+}
+
+/*  Ll  */
+#loadingText {
+    font-size: 25px;
+    background: linear-gradient(to bottom, #00aaff 25%, #0080ff 50%, #0055ff 75%, #002aff 100%);
+    margin-top: 25px;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+</style>
+<script>
+
+window.setTimeout(startup, 2000); // 
+
+function startup() {
+    if(window.location) {
+        window.location = 'effect.html' + window.location.hash;
+    }
+}
+</script>
