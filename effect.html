@@ -1,30 +1,15 @@
-<!-- effect file -->
-
 <div id="startupEffect"></div>
 <style>
-
-/*
-    All divs are styled in ABC order
-*/
-
-/*  Bb  */
-
 body {
     background: #0000ff;
     margin: 0;
     padding: none;
 }
-
-/*  Kk  */
-
 @keyframes startUpEffect {
     0%{display:block;}
     50%{opacity:50%;}
     100%{opacity:0%;}
 }
-
-/*  Ss  */
-
 #startupEffect {
     animation: startUpEffect 1s linear;
     background: white;
@@ -33,25 +18,19 @@ body {
     width: 2000px;
     height: 2000px;
 }
-
 </style>
 <script>
-
-window.setTimeout(startup, 1500); // Wait 1.5 seconds for editor screen to load
-window.setTimeout(effectDisappear, 1000); // Wait 1 second for the effect fixing
-
-// Play the splashing sound effect
+window.setTimeout(startup, 1500);
+window.setTimeout(effectDisappear, 1000);
 var splash = new Audio();
 splash.src = "splash.mp3";
 splash.play();
-
 function startup() {
     if(window.location) {
         window.location = 'ss3.html' + window.location.hash;
     }
 }
-
 function effectDisappear() {
-    document.getElementById("startupEffect").style.display = "none"; // Fix the foreground showing after it fades out
+    document.getElementById("startupEffect").style.display = "none";
 }
 </script>
